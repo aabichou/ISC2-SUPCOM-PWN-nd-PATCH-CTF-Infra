@@ -1,0 +1,21 @@
+services:
+  frps: # FRP Server
+    image: ghcr.io/fatedier/frps:v0.59.0 # Docker image for FRP server
+    restart: always # Restart policy
+    volumes:
+      - ./frps.json:/frp/config/frps.json # Mount configuration file
+      - ./log:/frp/log # Mount log directory
+    network_mode: host # Use host networking
+    command: ["-c", "/frp/config/frps.json"] # Command to run with the configuration file
+
+  ddns: # Cloudflare Dynamic DNS Service
+    image: favonia/cloudflare-ddns:latest # Docker image for Cloudflare DDNS
+    network_mode: host # Use host
+    restart: always # Restart policy
+    user: "1000:1000" # Specify user and group ID
+    read_only: true # Run container in read-only mode
+    cap_drop: [all] # Drop all capabilities for security
+    security_opt: [no-new-privileges:true] # Security option to prevent privilege escalation
+    env_file:
+      - path: .env # Load environment variables from .env file
+        required: true # Ensure the file is required

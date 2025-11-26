@@ -1,0 +1,12 @@
+include:
+  - traefik/compose.yaml
+  - CTFdd/compose.yaml
+  - ctf-web-challenge/compose.yaml
+networks:
+  traefik:
+    name: traefik
+    external: true
+  internal:
+    name: internal
+    driver: bridge
+    external: true

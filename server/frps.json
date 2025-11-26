@@ -1,0 +1,16 @@
+{
+  "bindPort": 7000,
+  "log": {
+    "level": "info",
+    "maxDays": 3,
+    "to": "/frp/log/frp.log"
+  },
+  "webServer": {
+    "addr": "0.0.0.0",
+    "password": "{{ .Envs.FRP_USER_WEB_PASSWORD }}",
+    "port": 7500,
+    "user": "{{ .Envs.FRP_USER_WEB }}"
+  },
+  "vhostHTTPSPort": 443,
+  "vhostHTTPPort": 80
+}

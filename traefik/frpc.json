@@ -1,0 +1,27 @@
+{
+  "serverAddr": "{{ .Envs.FRP_SERVER_IP }}",
+  "serverPort": 7000,
+  "proxies": [
+    {
+      "name": "web-https",
+      "type": "https",
+      "localIP": "127.0.0.1",
+      "localPort": 443,
+      "customDomains": ["*.example.com"]
+    },
+    {
+      "name": "web-http",
+      "type": "http",
+      "localIP": "127.0.0.1",
+      "localPort": 80,
+      "customDomains": ["*.example.com"]
+    },
+    {
+      "localIP": "127.0.0.1",
+      "localPort": 22,
+      "name": "ssh",
+      "remotePort": 2222,
+      "type": "tcp"
+    }
+  ]
+}

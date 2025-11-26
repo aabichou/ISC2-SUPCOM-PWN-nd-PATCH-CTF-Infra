@@ -1,0 +1,62 @@
+services:
+  traefik:
+    image: traefik:v3.6
+    container_name: traefik
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--accesslog=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entryPoints.websecure.transport.respondingTimeouts.readTimeout=300"
+      # DNS Challenge configuration for Cloudflare
+      # DNS Challenge (Cloudflare PROD)
+      - "--certificatesResolvers.cloudflare.acme.dnsChallenge.provider=cloudflare"
+      - "--certificatesResolvers.cloudflare.acme.caServer=https://acme-v02.api.letsencrypt.org/directory"
+      - "--certificatesResolvers.cloudflare.acme.dnsChallenge.delayBeforeCheck=0"
+      - "--certificatesResolvers.cloudflare.acme.email=cloud-support@abichou.tn"
+      - "--certificatesResolvers.cloudflare.acme.storage=/letsencrypt/acme-prod.json"
+      # allow self-signed behind ${SERVICE}
+      - "--serversTransport.insecureSkipVerify=true"
+      # Wildcard Certs
+      - --entrypoints.websecure.http.tls=true
+      - --entrypoints.websecure.http.tls.certResolver=cloudflare
+      - --entrypoints.websecure.http.tls.domains[0].main=${DOMAIN}
+      - --entrypoints.websecure.http.tls.domains[0].sans=*.${DOMAIN}
+      # Redirect to HTTPS
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      # logging: default and access logs
+      - "--log.level=DEBUG"
+      - "--log.format=json"
+      - "--accesslog=true"
+      - "--accesslog.bufferingsize=100"
+    ports:
+      - "80:80"
+      - "443:443"
+    env_file:
+      - .env
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SERVICE}.rule=Host(`${SERVICE}.${DOMAIN}`)"
+      - "traefik.http.routers.${SERVICE}.entrypoints=websecure"
+      - "traefik.http.services.${SERVICE}.loadbalancer.server.port=8080"
+      # Basic Auth for Traefik Dashboard
+      - "traefik.http.routers.${SERVICE}.middlewares=${SERVICE}-auth"
+      - "traefik.http.middlewares.${SERVICE}-auth.basicauth.users=${BASIC_AUTH}"
+  frpc: # FRP Client
+    image: ghcr.io/fatedier/frpc:v0.59.0 # Docker image for FRP client
+    restart: always # Restart policy
+    volumes:
+      - ./frpc.json:/frp/config/frpc.json # Mount configuration directory
+      - ./log:/frp/log # Mount log directory
+    network_mode: host # Use host networking
+    env_file:
+      - path: .env # Load environment variables from .env file
+        required: true # Ensure the file is required
+    command: ["-c", "/frp/config/frpc.json"] # Command to run with the configuration file

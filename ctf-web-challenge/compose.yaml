@@ -1,0 +1,9 @@
+services:
+  whoami:
+    image: traefik/whoami
+    restart: always
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.${SUBDOMAIN}.rule=Host(`${SUBDOMAIN}.${DOMAIN}`)"
+      - "traefik.http.routers.${SUBDOMAIN}.entrypoints=websecure"
+      - "traefik.http.services.${SUBDOMAIN}.loadbalancer.server.port=${PORT}"
