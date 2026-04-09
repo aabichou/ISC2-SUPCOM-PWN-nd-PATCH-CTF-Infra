@@ -1,3 +1,7 @@
+networks:
+  default:
+    name: external
+    external: true
 services:
   ctfd:
     image: ghcr.io/ctfd/ctfd:3.8.1
