@@ -6,7 +6,7 @@ networks:
     name: internal
 services:
   ctfd:
-    image: ghcr.io/ctfd/ctfd:3.8.1
+    image: ghcr.io/ctfd/ctfd:3.8.2
     user: root
     restart: always
     ports:
